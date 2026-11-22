@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="StudySync — collaborative notes, PDF-to-notes, exam mode and quizzes." />
+
+  <title>Notely — Collaborative Notes</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- Animated WebGL background -->
+  <canvas id="backgroundCanvas" aria-hidden="true"></canvas>
+  <div class="noise-overlay" aria-hidden="true"></div>
+
+
+  <!-- ================= HEADER ================= -->
+
+  <header class="topbar glass">
+
+    <a class="brand" href="#" aria-label="Notely home">
+      <span class="brand-mark">N</span>
+      <span>Notely</span>
+    </a>
+
+    <nav>
+      <a href="#notes">Notes</a>
+      <a href="#pdf">PDF to Notes</a>
+      <a href="#quiz">Quizzes</a>
+    </nav>
+
+    <button
+      class="avatar"
+      id="profileButton"
+      title="Current student"
+    >
+      PM
+    </button>
+
+  </header>
+
+
+
+  <!-- ================= MAIN ================= -->
+
+  <main>
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+      <div class="hero-copy">
+
+        <span class="eyebrow">
+          COLLABORATE · LEARN · REVISE
+        </span>
+
+        <h1>
+          Turn scattered study material into
+          <span>shared knowledge.</span>
+        </h1>
+
+        <p>
+          Create notes together, keep private notes when you need them,
+          convert PDFs into clean study notes, and test yourself with
+          quizzes generated from your material.
+        </p>
+
+        <div class="hero-actions">
+
+          <button
+            class="btn btn-primary"
+            id="newNoteHero"
+          >
+            Create a note
+          </button>
+
+          <label
+            class="btn btn-secondary"
+            for="pdfInput"
+          >
+            Upload a PDF
+          </label>
+
+          <input
+            id="pdfInput"
+            type="file"
+            accept="application/pdf"
+            hidden
+          />
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Hero preview -->
+
+      <div class="hero-card glass">
+
+        <div class="mini-header">
+
+          <span>
+            Live workspace
+          </span>
+
+          <span class="status-dot">
+            ● synced
+          </span>
+
+        </div>
+
+
+        <div class="workspace-preview">
+
+          <div class="person-chip">
+            <span class="dot purple"></span>
+            You
+          </div>
+
+          <div class="connector"></div>
+
+          <div class="person-chip">
+            <span class="dot blue"></span>
+            Friend 2
+          </div>
+
+
+          <div class="shared-note">
+
+            <div class="note-label">
+              Shared chapter
+            </div>
+
+            <strong>
+              Data Structures — Trees
+            </strong>
+
+            <p>
+              Definitions, traversal methods,
+              complexity and exam points.
+            </p>
+
+            <div class="note-footer">
+
+              <span>
+                2 contributors
+              </span>
+
+              <span>
+                Updated just now
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================= STATISTICS ================= -->
+
+    <section class="stats">
+
+      <div>
+        <strong id="noteCount">0</strong>
+        <span>notes</span>
+      </div>
+
+      <div>
+        <strong id="sharedCount">0</strong>
+        <span>shared</span>
+      </div>
+
+      <div>
+        <strong id="privateCount">0</strong>
+        <span>private</span>
+      </div>
+
+      <div>
+        <strong id="quizCount">0</strong>
+        <span>quizzes</span>
+      </div>
+
+    </section>
+
+
+
+    <!-- ================= NOTES ================= -->
+
+    <section
+      class="section"
+      id="notes"
+    >
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="eyebrow">
+            YOUR WORKSPACE
+          </span>
+
+          <h2>
+            Notes made for studying together.
+          </h2>
+
+        </div>
+
+        <button
+          class="btn btn-primary"
+          id="newNoteButton"
+        >
+          + New note
+        </button>
+
+      </div>
+
+
+
+      <!-- Search and filters -->
+
+      <div class="toolbar glass">
+
+        <div class="search-wrap">
+
+          <span>
+            ⌕
+          </span>
+
+          <input
+            id="searchInput"
+            type="search"
+            placeholder="Search notes, subjects, tags..."
+          />
+
+        </div>
+
+
+        <div class="filters">
+
+          <button
+            class="filter active"
+            data-filter="all"
+          >
+            All
+          </button>
+
+          <button
+            class="filter"
+            data-filter="shared"
+          >
+            Shared
+          </button>
+
+          <button
+            class="filter"
+            data-filter="private"
+          >
+            Private
+          </button>
+
+          <button
+            class="filter"
+            data-filter="pdf"
+          >
+            From PDF
+          </button>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Notes will be inserted here by JavaScript -->
+
+      <div
+        class="note-grid"
+        id="noteGrid"
+      ></div>
+
+
+
+      <!-- Empty state -->
+
+      <div
+        class="empty-state glass"
+        id="emptyState"
+      >
+
+        <div class="empty-icon">
+          ✦
+        </div>
+
+        <h3>
+          No notes yet
+        </h3>
+
+        <p>
+          Create your first note or upload a PDF
+          and turn it into study material.
+        </p>
+
+        <button
+          class="btn btn-primary"
+          id="emptyCreate"
+        >
+          Create a note
+        </button>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================= PDF SECTION ================= -->
+
+    <section
+      class="section two-column"
+      id="pdf"
+    >
+
+      <div class="feature-panel glass">
+
+        <span class="eyebrow">
+          PDF → NOTES
+        </span>
+
+        <h2>
+          Upload a chapter.
+          Get study-ready notes.
+        </h2>
+
+        <p>
+          The browser extracts text from your PDF and
+          builds two versions: a fuller explanation
+          and an exam-friendly revision sheet.
+        </p>
+
+
+        <label
+          class="dropzone"
+          for="pdfInput"
+        >
+
+          <span class="upload-icon">
+            ↑
+          </span>
+
+          <strong>
+            Drop a PDF here
+          </strong>
+
+          <span>
+            or click to browse
+          </span>
+
+          <small>
+            Text-based PDFs work best
+            in this browser-only MVP.
+          </small>
+
+        </label>
+
+      </div>
+
+
+
+      <!-- Modes -->
+
+      <div class="feature-panel glass">
+
+        <span class="eyebrow">
+          TWO MODES
+        </span>
+
+
+        <div class="mode-card">
+
+          <span class="mode-icon">
+            ◌
+          </span>
+
+          <div>
+
+            <strong>
+              Study notes
+            </strong>
+
+            <p>
+              Most important concepts explained simply
+              with headings and bullets.
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="mode-card">
+
+          <span class="mode-icon">
+            ⚡
+          </span>
+
+          <div>
+
+            <strong>
+              Exam-friendly
+            </strong>
+
+            <p>
+              Short, precise points, definitions,
+              keywords and likely revision targets.
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="mode-card">
+
+          <span class="mode-icon">
+            ?
+          </span>
+
+          <div>
+
+            <strong>
+              Quiz mode
+            </strong>
+
+            <p>
+              Generate questions from any note
+              and answer them immediately.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================= QUIZ SECTION ================= -->
+
+    <section
+      class="section"
+      id="quiz"
+    >
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="eyebrow">
+            ACTIVE REVISION
+          </span>
+
+          <h2>
+            Quiz yourself from your notes.
+          </h2>
+
+        </div>
+
+        <button
+          class="btn btn-secondary"
+          id="openQuizButton"
+        >
+          Open quiz
+        </button>
+
+      </div>
+
+
+
+      <div
+        class="quiz-preview glass"
+        id="quizPreview"
+      >
+
+        <div class="quiz-progress">
+          <span></span>
+        </div>
+
+        <span class="eyebrow">
+          SAMPLE QUESTION
+        </span>
+
+        <h3 id="previewQuestion">
+          Create a note to generate your first quiz.
+        </h3>
+
+
+        <div class="quiz-options">
+
+          <button disabled>
+            A. Option one
+          </button>
+
+          <button disabled>
+            B. Option two
+          </button>
+
+          <button disabled>
+            C. Option three
+          </button>
+
+          <button disabled>
+            D. Option four
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+
+  <!-- ================= CREATE NOTE MODAL ================= -->
+
+  <div
+    class="modal-backdrop"
+    id="noteModal"
+  >
+
+    <form
+      class="modal glass"
+      id="noteForm"
+    >
+
+      <button
+        type="button"
+        class="modal-close"
+        data-close="noteModal"
+      >
+        ×
+      </button>
+
+      <span class="eyebrow">
+        NEW NOTE
+      </span>
+
+      <h2>
+        Create collaborative notes
+      </h2>
+
+
+      <label>
+        Title
+
+        <input
+          name="title"
+          required
+          placeholder="e.g. Operating Systems — Processes"
+        />
+
+      </label>
+
+
+
+      <label>
+        Subject
+
+        <input
+          name="subject"
+          placeholder="Computer Science"
+        />
+
+      </label>
+
+
+
+      <label>
+        Content
+
+        <textarea
+          name="content"
+          rows="7"
+          required
+          placeholder="Write your notes here..."
+        ></textarea>
+
+      </label>
+
+
+
+      <div class="form-row">
+
+        <label>
+
+          Visibility
+
+          <select name="visibility">
+
+            <option value="shared">
+              Shared with collaborators
+            </option>
+
+            <option value="private">
+              Private — only me
+            </option>
+
+          </select>
+
+        </label>
+
+
+
+        <label>
+
+          Version
+
+          <select name="mode">
+
+            <option value="study">
+              Study notes
+            </option>
+
+            <option value="exam">
+              Exam-friendly
+            </option>
+
+          </select>
+
+        </label>
+
+      </div>
+
+
+
+      <label class="switch-row">
+
+        <input
+          type="checkbox"
+          name="quizEnabled"
+          checked
+        />
+
+        <span></span>
+
+        Enable quiz generation
+
+      </label>
+
+
+
+      <button
+        class="btn btn-primary full"
+        type="submit"
+      >
+        Save note
+      </button>
+
+    </form>
+
+  </div>
+
+
+
+  <!-- ================= NOTE VIEWER ================= -->
+
+  <div
+    class="modal-backdrop"
+    id="noteViewer"
+  >
+
+    <div class="modal glass viewer-modal">
+
+      <button
+        type="button"
+        class="modal-close"
+        data-close="noteViewer"
+      >
+        ×
+      </button>
+
+      <div id="viewerContent"></div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ================= QUIZ MODAL ================= -->
+
+  <div
+    class="modal-backdrop"
+    id="quizModal"
+  >
+
+    <div class="modal glass quiz-modal">
+
+      <button
+        type="button"
+        class="modal-close"
+        data-close="quizModal"
+      >
+        ×
+      </button>
+
+      <span class="eyebrow">
+        QUIZ
+      </span>
+
+      <div id="quizContent"></div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ================= TOAST ================= -->
+
+  <div
+    class="toast"
+    id="toast"
+  ></div>
+
+
+
+  <!-- ================= PDF.JS ================= -->
+
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs"
+    type="module"
+  ></script>
+
+
+
+  <!-- ================= APPLICATION SCRIPT ================= -->
+<script src="script.js" defer></script>
+</body>
+</html>
